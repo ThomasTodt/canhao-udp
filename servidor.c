@@ -1,3 +1,4 @@
+#include "defs.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
@@ -5,61 +6,67 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-#define TAMFILA      5
 #define MAXHOSTNAME 30
 
-main ( int argc, char *argv[])
-{
-	int s, t;
-	unsigned int i;
-	char buf [BUFSIZ + 1];
-	struct sockaddr_in sa, isa;  /* sa: servidor, isa: cliente */
-	struct hostent *hp;
-	char localhost [MAXHOSTNAME];
-	int recebidas = 0;
+int main (int argc, char *argv[]) {
+    int sockdescr;
+    struct sockaddr_in sa;
+    struct hostent *hp;
+    char localhost[MAXHOSTNAME];
+    int recebidas = 0, foraDeOrdem = 0;
 
-	if (argc != 2) {
-		puts("Uso correto: servidor <porta>");
-		exit(1);
-	}
+    if (argc != 2) {
+        puts("Uso correto: servidor <porta>");
+        exit(1);
+    }
 
-	gethostname (localhost, MAXHOSTNAME);
+    gethostname(localhost, MAXHOSTNAME);
 
-	if (( hp = gethostbyname(localhost) ) == NULL){
-		puts ("Nao consegui meu proprio IP");
-		exit (1);
-	}	
+    if ((hp = gethostbyname(localhost)) == NULL) {
+        perror("gethostbyname");
+        puts("Não consegui meu próprio IP");
+        exit(1);
+    }
 
-	sa.sin_port = htons(atoi(argv[1]));
+    bcopy((char *) hp->h_addr_list[0], (char *) &sa.sin_addr, hp->h_length);
+    sa.sin_family = hp->h_addrtype;
+    sa.sin_port = htons(atoi(argv[1]));
 
-	bcopy ((char *) hp->h_addr_list[0], (char *) &sa.sin_addr, hp->h_length);
+    if ((sockdescr = socket(hp->h_addrtype, SOCK_DGRAM, 0)) < 0) {
+        perror("socket"); 
+        puts("Não consegui abrir o socket.");
+        exit(1);
+    }	
 
-	sa.sin_family = hp->h_addrtype;		
+    if (bind(sockdescr, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
+        perror("bind");
+        puts("Não consegui fazer o bind.");
+        exit(1);
+    }
 
+    unsigned int seqEsperado = 0;
+    unsigned int msg;
+    while (1) {
+        recvfrom(sockdescr, &msg, sizeof(unsigned int), 0, NULL, NULL);
+        printf("Sou o servidor, recebi a mensagem----> %u\n", msg);
 
-	if ((s = socket(hp->h_addrtype,SOCK_DGRAM,0)) < 0){
-			puts ( "Nao consegui abrir o socket" );
-		exit ( 1 );
-	}	
+        if (msg != seqEsperado) {
+            printf("Mensagem fora de ordem, esperava %u recebido %u\n", seqEsperado, msg);
+            foraDeOrdem++;
+        }
 
-	if (bind(s, (struct sockaddr *) &sa,sizeof(sa)) < 0){
-		puts ( "Nao consegui fazer o bind" );
-		exit ( 1 );
-	}		
+        seqEsperado++; // (?)
+        recebidas++;
 
-	while (1) 
-	{
-		i = sizeof(isa); 
-		puts("Vou bloquear esperando mensagem.");
-		recvfrom(s, buf, BUFSIZ, 0, (struct sockaddr *) &isa, &i);
-		printf("Sou o servidor, recebi a mensagem----> %s\n", buf);
-		// sendto(s, buf, BUFSIZ, 0, (struct sockaddr *) &isa, i);
+        if (msg == NUM_MSGS - 1) {
+            break;
+        }
+    }
 
-		recebidas++;
-	}
+    printf("Recebidas: %u / %u = %3.2f%%\n", recebidas, NUM_MSGS, 100.0 * (double) recebidas / (double) NUM_MSGS);
+    printf("Fora de Ordem: %u = %3.2f%%\n", foraDeOrdem, 100.0 * (double) foraDeOrdem / (double) NUM_MSGS);
 
-	printf("RECEBIDAS: %d\n");
-
-	return 0;
-};
+    return 0;
+}

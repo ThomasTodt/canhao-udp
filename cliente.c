@@ -5,64 +5,55 @@
 #include <netdb.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
-main(int argc, char *argv[]) 
-{  
-  int sockdescr;
-  int numbytesrecv;
-  struct sockaddr_in sa;
-  struct hostent *hp;
-  char buf[BUFSIZ+1];
-  char *host;
-  char *dados;
+#include "defs.h"
 
-  unsigned int i;
+int main(int argc, char *argv[]) {  
+    int sockdescr;
+    struct sockaddr_in sa;
+    struct hostent *hp;
+    char *host;
+    char *port;
 
-  if(argc != 4) {
-    puts("Uso correto: cliente <nome-servidor> <porta> <dados>");
-    exit(1);
-  }
-
-  host = argv[1];
-  dados = argv[3];
-
-  if((hp = gethostbyname(host)) == NULL){
-    puts("Nao consegui obter endereco IP do servidor.");
-    exit(1);
-  }
-
-  bcopy((char *)hp->h_addr_list[0], (char *)&sa.sin_addr, hp->h_length);
-
-  sa.sin_family = hp->h_addrtype;
-
-  sa.sin_port = htons(atoi(argv[2]));
-
-  if((sockdescr=socket(hp->h_addrtype, SOCK_DGRAM, 0)) < 0) {
-    puts("Nao consegui abrir o socket.");
-    exit(1);
-  }
-
-  char num_str[10];
-  for (int i = 0; i < 1000000; i++)
-  {
-
-    sprintf(num_str, "%d: ", i);
-    strcat(num_str, dados);
-
-    if(sendto(sockdescr, num_str, strlen(num_str)+1, 0, (struct sockaddr *) &sa, sizeof sa) != strlen(num_str)+1)
-    {
-      puts("Nao consegui mandar os dados"); 
-      exit(1);
+    if (argc != 3) {
+        puts("Uso correto: cliente <nome-servidor> <porta>");
+        exit(1);
     }
 
-  }
+    host = argv[1];
+    port = argv[2];
 
-  /* end while }*/
+    if ((hp = gethostbyname(host)) == NULL) {
+        perror("gethostbyname"); 
+        puts("Não consegui obter endereco IP do servidor.");
+        exit(1);
+    }
 
-  // recvfrom(sockdescr, buf, BUFSIZ, 0, (struct sockaddr *) &sa, &i);
+    bcopy((char *)hp->h_addr_list[0], (char *)&sa.sin_addr, hp->h_length);
 
-  // printf("Sou o cliente, recebi: %s\n", buf);
+    sa.sin_family = hp->h_addrtype;
 
-  close(sockdescr);
-  exit(0);
-};
+    sa.sin_port = htons(atoi(port));
+
+    if ((sockdescr=socket(hp->h_addrtype, SOCK_DGRAM, 0)) < 0) {
+        perror("socket");
+        puts("Não consegui abrir o socket.");
+        exit(1);
+    }
+
+    unsigned int seq = 0;
+    for (int i = 0; i < NUM_MSGS; i++) {
+        if (sendto(sockdescr, &seq, sizeof(seq), 0, (struct sockaddr *) &sa, sizeof(sa)) != sizeof(seq)) {
+            perror("sendto");
+            puts("Não consegui mandar os dados."); 
+            exit(1);
+        }
+
+        seq++;
+    }
+
+    close(sockdescr);
+    exit(0);
+}
+

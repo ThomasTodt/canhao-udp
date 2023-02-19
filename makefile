@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-c -Wall
+CFLAGS=-c -Wall -Wextra -Wpedantic
 LDFLAGS=
 CLIENT_SOURCES=cliente.c
 CLIENT_OBJECTS=$(CLIENT_SOURCES:.c=.o)
@@ -10,9 +10,9 @@ SERVER_EXECUTABLE=servidor
 
 all: client server
 
-client: $(CLIENT_SOURCES) $(CLIENT_EXECUTABLE)
+client: $(CLIENT_SOURCES) $(CLIENT_EXECUTABLE) defs.h
 
-server: $(SERVER_SOURCES) $(SERVER_EXECUTABLE)
+server: $(SERVER_SOURCES) $(SERVER_EXECUTABLE) defs.h
 
 $(CLIENT_EXECUTABLE): $(CLIENT_OBJECTS)
 	$(CC) $(LDFLAGS) $^ -o $@
