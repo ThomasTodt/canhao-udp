@@ -3,6 +3,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <sys/types.h>
+#include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,7 +39,14 @@ int main (int argc, char *argv[]) {
         perror("socket"); 
         puts("Não consegui abrir o socket.");
         exit(1);
-    }	
+    }
+
+    // Timeout
+    struct timeval tv;
+    tv.tv_sec = 2;
+    tv.tv_usec = 0;
+
+    setsockopt(sockdescr, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)); 
 
     if (bind(sockdescr, (struct sockaddr *) &sa, sizeof(sa)) < 0) {
         perror("bind");
@@ -49,16 +57,18 @@ int main (int argc, char *argv[]) {
     unsigned int seqEsperado = 0;
     unsigned int msg;
     while (1) {
-        recvfrom(sockdescr, &msg, sizeof(unsigned int), 0, NULL, NULL);
-        printf("Sou o servidor, recebi a mensagem----> %u\n", msg);
+        if (recvfrom(sockdescr, &msg, sizeof(unsigned int), 0, NULL, NULL) < 0) {
+            break;
+        }
 
-        if (msg != seqEsperado) {
+        if (msg > seqEsperado) {
             printf("Mensagem fora de ordem, esperava %u recebido %u\n", seqEsperado, msg);
+            seqEsperado = msg;
             foraDeOrdem++;
         }
 
-        seqEsperado++; // (?)
-        recebidas++;
+       seqEsperado++;
+       recebidas++;
 
         if (msg == NUM_MSGS - 1) {
             break;
