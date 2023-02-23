@@ -61,13 +61,12 @@ int main (int argc, char *argv[]) {
             break;
         }
 
-        if (msg > seqEsperado) {
+        if (msg < seqEsperado) {
             printf("Mensagem fora de ordem, esperava %u recebido %u\n", seqEsperado, msg);
-            seqEsperado = msg;
             foraDeOrdem++;
         }
 
-       seqEsperado++;
+       seqEsperado = msg + 1;
        recebidas++;
 
         if (msg == NUM_MSGS - 1) {
@@ -75,8 +74,8 @@ int main (int argc, char *argv[]) {
         }
     }
 
-    printf("Recebidas: %u / %u = %3.2f%%\n", recebidas, NUM_MSGS, 100.0 * (double) recebidas / (double) NUM_MSGS);
-    printf("Fora de Ordem: %u = %3.2f%%\n", foraDeOrdem, 100.0 * (double) foraDeOrdem / (double) NUM_MSGS);
+    printf("Recebidas: %u / %u = %3.4f%%\n", recebidas, NUM_MSGS, 100.0 * (double) recebidas / (double) NUM_MSGS);
+    printf("Fora de Ordem: %u = %3.4f%%\n", foraDeOrdem, 100.0 * (double) foraDeOrdem / (double) NUM_MSGS);
 
     return 0;
 }
