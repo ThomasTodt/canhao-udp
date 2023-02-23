@@ -1,3 +1,0 @@
-Mensagem fora de ordem, esperava 804205 recebido 805320
-Recebidas: 998885 / 1000000 = 99.89%
-Fora de Ordem: 1 = 0.00%

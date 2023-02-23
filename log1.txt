@@ -1,2 +1,12 @@
-Recebidas: 1000000 / 1000000 = 100.0000%
-Fora de Ordem: 0 = 0.0000%
+Mensagem fora de ordem, esperava 27274 recebido 27271
+Mensagem fora de ordem, esperava 147902 recebido 147900
+Mensagem fora de ordem, esperava 268474 recebido 268471
+Mensagem fora de ordem, esperava 388584 recebido 388581
+Mensagem fora de ordem, esperava 509190 recebido 509188
+Mensagem fora de ordem, esperava 631057 recebido 631055
+Mensagem fora de ordem, esperava 706099 recebido 706091
+Mensagem fora de ordem, esperava 752419 recebido 752415
+Mensagem fora de ordem, esperava 874659 recebido 874655
+Mensagem fora de ordem, esperava 995954 recebido 995953
+Recebidas: 965782 / 1000000 = 96.5782%
+Fora de Ordem: 10 = 0.0010%
