@@ -1,3 +1,13 @@
+/*
+ * Programa servidor do teste de qualidade de rede Canhão UDP.
+ * Objetivo: Mandar uma alta quantidade de mensagens UDP e verificar 
+ * a quantidade delas que ficam fora de ordem ou são perdidos.
+ *
+ * Autores: Thomas Bianci Todt e Gustavo Silveira Frehse
+ * Disciplina: Redes II
+ * Data da última atualização: 22/02/2023
+ */
+
 #include "defs.h"
 #include <sys/socket.h>
 #include <netinet/in.h>
