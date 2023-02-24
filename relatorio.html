@@ -21,7 +21,6 @@ p {
 
 <center><h2> Autores: Gustavo Silveira Frehse & Thomas Bianchi Todt </h2></center>
 <center>
-<!-- <img src="tux.gif" style="width:100px;height:100px;"> -->
 </center>
 <p>O objetivo do Canhão UDP é examinar se há perda de pacote UDP/IP na nossa rede, e qual é a taxa aproximada desta perda. Além disso, será verificado também se as mensagens são entregues fora de ordem</p>
 <p>Para tal, separamos em partes a implementação e análise dos dados:</p>
@@ -31,7 +30,6 @@ p {
 </ul>
 
 <center><h2 id=implementacao > Implementação</h2></center>
-<!-- <center><img src="computer.gif" style="width:107px;height:35px;"></center> -->
 <h3> Cliente </h3>
     <p>O cliente é baseado no cliente normal UDP disponibilizado como exemplo no site da disciplina.</p>
     <p>Cada mensagem contém seu número de sequência, a fim de analisar a ocorrência de perda de sequência.</p>
@@ -43,45 +41,36 @@ p {
     <p>Com essa intenção, definimos um timeout para o recebimento de mensagens, de forma que se 2 segundos se passam sem o recebimento de uma nova mensagem, o programa se encaminha para o encerramento</p>
     <p>Ao receber uma mensagem do cliente, o servidor define a mensagem que ele espera na sequência (o número da recebida acrescido de 1).</p>
     <p>Caso a mensagem recebida a seguir contenha um número diferente do esperado, o servidor então identifica o acontecimento de perda de ordem</p>
-    <p>Dessa forma, é considerado que em uma sequência como: "1 4 8 5 6 7 9", a ordem é perdida apenas uma vez (do 5 para o 8)</p>
+    <p>Dessa forma, é considerado que em uma sequência como: "1 4 8 5 6 7 9", as mensagens estão fora de ordem do 5 ao 7, pois era esperado o 9</p>
+    <p>Definimos ainda a perda de ordem. Na sequência acima, há apenas uma ocorrência de perda de ordem, entre o 5 e o 8</p>
 
-<center><h2 id=analise > Análise dos dados </h3></center>
-<center><img src="dog.gif" style="width:120px;height:104px;"></center>
-
-<center><h3>Dados do projeto em C</h3></center>
-<center>
-<div class="row">
-    <div class="column">
-      <img src="dados/c_plot1000.png" alt="1000" style="width:40%">
-    </div>
-</div> 
-</center>
-
-<p>Para 1000 mensagens o servidor conseguiu suportar a tarefa, todas mensagens chegaram de acordo.</p>
+<center><h2 id=analise > Análise dos dados </h2></center>
+<p>Os testes foram realizados entre a CPU1 (servidor) e a CPU2 (cliente)</p>
+<p>Para 10k mensagens, nenhuma mensagem foi perdida.</p>
 
 <div class="row">
     <div class="column">
-      <img src="dados/c_plot10000.png" alt="1000" style="width:90%">
+      <img src="Figure_1.png" alt="1000" style="width:90%">
     </div>
     <div class="column">
-        <img src="dados/c_plot100000.png" alt="1000" style="width:90%">
+        <img src="Figure_2.png" alt="1000" style="width:90%">
     </div>
     <div class="column">
-        <img src="dados/c_plot1000000.png" alt="1000" style="width:90%">
+        <img src="Figure_3.png" alt="1000" style="width:90%">
     </div>
 </div> 
+<p>As médias observadas foram, respectivamente para 100k, 1M e 10M mensagens:</p>
+<p> - 99.17%</p>
+<p> - 97.35%</p>
+<p> - 99.00%</p>
 <p>
-    Entretanto conforme o número de mensagens sobe, o número de erros cresce, mas não parece haver um padrão tão óbvio, 
-    pois algumas vezes todas mensagens são entregues enquanto em outros momentos temos erros em testes consecutivos. 
-    Parece haver algum misto de preempção do sistema operacional junto com o buffer do UDP, causando esse comportamento errático.
+    É possível então perceber uma leve diminuição na taxa de sucesso de envio do servidor com o aumento de mensagens de 100k para 1M. No entanto, temos a reversão dessa tendência quando aumentamos a quantidaded de envios para 10M. As causas disso não são claras.
 </p>
 <p>
-    Esse padrão de falta de padrão se repete ainda no maior teste feito, aquele com um milhão de mensagens. 
-        Um dos testes perdeu metade das mensagens, enquanto outros foram feitos sem quase nenhum erro.
-    </p>
+    É curioso reparar que não houve quase nenhum erro de ordem de chegada das mensagens durante os testes. Isso aconteceu apenas no teste 14 com 10M de mensagens, qando houveram 43 perdasde ordem e 271 mensagens fora de ordem.
+</p>
 
-    <p>
 
-<h4>O projeto está todo disponível em <a href="https://www.github.com/tikaradate/udp_cannon">github</a></h4>
+<h4>O projeto está todo disponível em <a href="https://github.com/ThomasTodt/canhao-udp">github</a></h4>
 
 </html>
