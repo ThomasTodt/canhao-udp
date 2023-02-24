@@ -79,6 +79,12 @@ int main (int argc, char *argv[]) {
        seqEsperado = msg + 1;
        recebidas++;
 
+		if (!(recebidas % 100))
+		{
+			printf("\n--RECEBIDAS: %d\n", recebidas);
+			printf("--FORA DE ORDEM: %d\n\n", foraDeOrdem);
+		}
+
         if (msg == NUM_MSGS - 1) {
             break;
         }
